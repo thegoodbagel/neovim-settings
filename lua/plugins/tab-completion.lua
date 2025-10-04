@@ -60,14 +60,8 @@ return {
       local npairs = require("nvim-autopairs")
       npairs.setup(opts)
 
-      -- Integrate with blink.cmp
-      local cmp_ok, cmp = pcall(require, "blink.cmp")
-      if cmp_ok then
-        -- Auto-insert brackets after function/method completion
-        local cmp_autopairs = require("nvim-autopairs.completion.cmp")
-        -- Note: blink.cmp might need different integration
-        -- This is a placeholder for future blink.cmp + autopairs integration
-      end
+      -- Note: blink.cmp doesn't have the same autopairs integration as nvim-cmp
+      -- The bracket jumping is handled in our Tab keymap instead
     end,
   },
 }

@@ -1,67 +1,70 @@
--- ~/.config/nvim/lua/plugins/tab-completion.lua
--- Consolidated Tab completion: blink.cmp + LuaSnip + autopairs
+-- ~/.config/nvim/lua/plugins/tab-keymaps.lua
+-- Load this AFTER blink.cmp to override Tab behavior
 
 return {
-  -- Blink.cmp - completion engine
-  {
-    "saghen/blink.cmp",
-    dependencies = { "L3MON4D3/LuaSnip", "windwp/nvim-autopairs" },
-    opts = {
-      keymap = {
-        preset = "none", -- Completely disable blink's Tab handling
-        ["<C-space>"] = { "show", "hide" },
-        ["<C-e>"] = { "hide" },
-        ["<CR>"] = { "accept", "fallback" },
-        ["<Up>"] = { "select_prev", "fallback" },
-        ["<Down>"] = { "select_next", "fallback" },
-        ["<C-p>"] = { "select_prev", "fallback" },
-        ["<C-n>"] = { "select_next", "fallback" },
-        ["<C-u>"] = { "scroll_documentation_up", "fallback" },
-        ["<C-d>"] = { "scroll_documentation_down", "fallback" },
-      },
-      snippets = {
-        preset = "luasnip",
-      },
-      sources = {
-        default = { "lsp", "path", "snippets", "buffer" },
-      },
+  "L3MON4D3/LuaSnip",
+  dependencies = { "saghen/blink.cmp" },
+  keys = {
+    {
+      "<Tab>",
+      function()
+        local luasnip = require("luasnip")
+        local cmp = require("blink.cmp")
+
+        -- Priority 1: Jump in active snippet
+        if luasnip.locally_jumpable(1) then
+          luasnip.jump(1)
+          return
+        end
+
+        -- Priority 2: Check for exact snippet match
+        local line = vim.fn.getline(".")
+        local col = vim.fn.col(".") - 1
+        local before_cursor = line:sub(1, col)
+        local word = before_cursor:match("%S+$") or ""
+
+        local snippets = luasnip.get_snippets(vim.bo.filetype)
+        for _, snip in ipairs(snippets or {}) do
+          if snip.trigger == word then
+            cmp.hide()
+            luasnip.expand()
+            return
+          end
+        end
+
+        -- Priority 3: Jump over closing brackets
+        local next_char = line:sub(col + 1, col + 1)
+        if next_char:match("[)}%]'>\"']") then
+          vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Right>", true, false, true), "n", false)
+          return
+        end
+
+        -- Priority 4: Navigate completion menu
+        if cmp.is_visible() then
+          cmp.select_next()
+        else
+          vim.api.nvim_feedkeys("\t", "n", false)
+        end
+      end,
+      mode = "i",
+      desc = "Tab: Snippet expansion > bracket jump > completion nav",
     },
-  },
+    {
+      "<S-Tab>",
+      function()
+        local luasnip = require("luasnip")
+        local cmp = require("blink.cmp")
 
-  -- LuaSnip - snippet engine
-  {
-    "L3MON4D3/LuaSnip",
-    build = "make install_jsregexp",
-    config = function()
-      local ls = require("luasnip")
-
-      -- Load snippets from various sources
-      require("luasnip.loaders.from_vscode").lazy_load()
-      require("luasnip.loaders.from_lua").lazy_load({ paths = "~/.config/nvim/snippets" })
-
-      -- Configure LuaSnip behavior
-      ls.config.set_config({
-        history = true,
-        updateevents = "TextChanged,TextChangedI",
-        enable_autosnippets = false,
-      })
-    end,
-  },
-
-  -- Autopairs - automatic bracket pairing
-  {
-    "windwp/nvim-autopairs",
-    event = "InsertEnter",
-    opts = {
-      fast_wrap = {},
-      disable_filetype = { "TelescopePrompt", "vim" },
+        if luasnip.jumpable(-1) then
+          luasnip.jump(-1)
+        elseif cmp.is_visible() then
+          cmp.select_prev()
+        else
+          vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<S-Tab>", true, false, true), "n", false)
+        end
+      end,
+      mode = "i",
+      desc = "Shift-Tab: Jump back in snippet or select prev completion",
     },
-    config = function(_, opts)
-      local npairs = require("nvim-autopairs")
-      npairs.setup(opts)
-
-      -- Note: blink.cmp doesn't have the same autopairs integration as nvim-cmp
-      -- The bracket jumping is handled in our Tab keymap instead
-    end,
   },
 }
