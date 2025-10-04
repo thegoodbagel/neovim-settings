@@ -29,13 +29,21 @@ return {
           end
         end
 
-        -- Priority 3: Jump over closing brackets
+        -- Priority 3: Jump over closing brackets/quotes/dollar
+        local next_two = line:sub(col + 1, col + 2)
         local next_char = line:sub(col + 1, col + 1)
-        if next_char:match("[)}%]'>\"']") then
-          vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Right>", true, false, true), "n", false)
+
+        -- If next is "$$" (display math), jump over both
+        if next_two == "$$" then
+          vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Right><Right>", true, false, true), "n", false)
           return
         end
 
+        -- If next is a single closing char (including $), jump over it
+        if next_char:match("[)}%]'>\"'$]") then
+          vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Right>", true, false, true), "n", false)
+          return
+        end
         -- Priority 4: Normal Tab
         vim.api.nvim_feedkeys("\t", "n", false)
       end,
