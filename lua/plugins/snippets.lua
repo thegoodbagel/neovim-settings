@@ -15,15 +15,17 @@ return {
     config = function()
       local ls = require("luasnip")
 
-      -- Load snippets
-      require("luasnip.loaders.from_vscode").lazy_load()
-      require("luasnip.loaders.from_lua").lazy_load({ paths = "~/.config/nvim/snippets" })
-
       -- Configure behavior
       ls.config.set_config({
         history = true,
         updateevents = "TextChanged,TextChangedI",
+        enable_autosnippets = true,
+        region_check_events = "CursorMoved,CursorMovedI",
       })
+
+      -- Load snippets
+      require("luasnip.loaders.from_vscode").lazy_load()
+      require("luasnip.loaders.from_lua").lazy_load({ paths = "~/.config/nvim/snippets" })
     end,
     keys = {
       {
