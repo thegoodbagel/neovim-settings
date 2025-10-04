@@ -26,7 +26,7 @@ end
 
 return {
   -- Lists
-  s("itm", { t({ "\\begin{itemize}", "\t\\item " }), i(0), t({ "", "\\end{itemize}" }) }),
+  s("itm", { t({ "\\begin{itemize}", "\t\\item " }), i(0), t({ "", "\\end{itemize}" }), i(1) }),
   s("enu", { t({ "\\begin{enumerate}", "\t\\item " }), i(0), t({ "", "\\end{enumerate}" }) }),
   s("desc", { t({ "\\begin{description}", "\t\\item " }), i(0), t({ "", "\\end{description}" }) }),
   s("it", { t("\\item ") }),
@@ -87,7 +87,7 @@ return {
   }),
 
   -- Begin / end environment
-  s({ trig = "beg", wordTrig = true, regTrig = false, snippetType = "autosnippet" }, {
+  s({ trig = "bgn", wordTrig = true, regTrig = false, snippetType = "autosnippet" }, {
     t("\\begin{"),
     i(1),
     t({ "}", "\t" }),
@@ -150,4 +150,11 @@ return {
 
   s({ trig = "test%d", regTrig = true, snippetType = "autosnippet" }, t("REGEX WORKS")),
   s({ trig = "zzz", snippetType = "autosnippet" }, t("AUTO WORKS")),
+
+  -- Vocab command
+  s("voc", {
+    t("\\vocab{"),
+    i(1),
+    t("}"),
+  }),
 }

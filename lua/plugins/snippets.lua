@@ -1,4 +1,4 @@
--- ~/.config/nvim/lua/plugins/completion.lua
+-- ~/.config/nvim/lua/plugins/snippets.lua
 -- Minimal setup: just snippets and autopairs, NO autocomplete menu
 
 return {
@@ -27,38 +27,38 @@ return {
       require("luasnip.loaders.from_vscode").lazy_load()
       require("luasnip.loaders.from_lua").lazy_load({ paths = "~/.config/nvim/snippets" })
     end,
+
     keys = {
       {
         "<Tab>",
         function()
           local ls = require("luasnip")
 
-          -- If in snippet, jump forward
-          if ls.locally_jumpable(1) then
-            ls.jump(1)
+          -- Priority 1: LuaSnip expansion/jumping
+          if ls.expand_or_jumpable() then
+            ls.expand_or_jump()
             return
           end
 
-          -- Check for exact snippet match
+          -- Priority 2: Jump over closing brackets
           local line = vim.fn.getline(".")
           local col = vim.fn.col(".") - 1
-          local word = line:sub(1, col):match("%S+$") or ""
-
-          for _, snip in ipairs(ls.get_snippets(vim.bo.filetype) or {}) do
-            if snip.trigger == word then
-              ls.expand()
-              return
-            end
-          end
-
-          -- Jump over closing brackets
           local next_char = line:sub(col + 1, col + 1)
           if next_char:match("[)}%]>\"']") or next_char == "$" then
             vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Right>", true, false, true), "n", false)
             return
           end
 
-          -- Normal tab
+          -- Priority 3: LaTeX list exit behavior (only for tex files)
+          if vim.bo.filetype == "tex" and _G.smart_tab then
+            local result = _G.smart_tab()
+            if result then
+              vim.api.nvim_feedkeys(result, "n", false)
+              return
+            end
+          end
+
+          -- Priority 4: Default tab
           vim.api.nvim_feedkeys("\t", "n", false)
         end,
         mode = "i",
@@ -68,11 +68,8 @@ return {
         "<S-Tab>",
         function()
           local ls = require("luasnip")
-
           if ls.jumpable(-1) then
             ls.jump(-1)
-          else
-            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<S-Tab>", true, false, true), "n", false)
           end
         end,
         mode = "i",
