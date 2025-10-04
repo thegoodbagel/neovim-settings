@@ -10,6 +10,7 @@ return {
   s("itm", { t({ "\\begin{itemize}", "\t\\item " }), i(0), t({ "", "\\end{itemize}" }) }),
   s("enu", { t({ "\\begin{enumerate}", "\t\\item " }), i(0), t({ "", "\\end{enumerate}" }) }),
   s("desc", { t({ "\\begin{description}", "\t\\item " }), i(0), t({ "", "\\end{description}" }) }),
+  s("it", { t("\\item ") }),
   -- Figures
   s("fig", {
     t({ "\\begin{figure}[h]", "\t\\centering", "\t" }),

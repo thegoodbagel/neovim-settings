@@ -10,6 +10,52 @@ return {
     vim.g.vimtex_view_skim_sync = 1
     vim.g.vimtex_view_skim_activate = 1
 
+    -- Function to check if we're inside itemize/enumerate
+    function _G.smart_item()
+      local cur_line = vim.fn.getline(".")
+      -- Only trigger if line starts with \item (optional spaces allowed)
+      if not cur_line:match("^%s*\\item") then
+        return vim.api.nvim_replace_termcodes("<CR>", true, false, true)
+      end
+
+      local cur = vim.fn.line(".")
+      local lines = vim.fn.getbufline("%", 1, cur)
+      local inside = false
+
+      -- Scan backwards to find the nearest \begin{itemize} or \begin{enumerate}
+      local begin_line = nil
+      for i = cur, 1, -1 do
+        local l = lines[i]
+        if l:match("\\begin{itemize}") or l:match("\\begin{enumerate}") then
+          begin_line = i
+          break
+        end
+      end
+
+      if begin_line then
+        -- Check if there is a matching \end before current line
+        inside = true
+        for i = begin_line + 1, cur do
+          local l = lines[i]
+          if l:match("\\end{itemize}") or l:match("\\end{enumerate}") then
+            inside = false
+            break
+          end
+        end
+      end
+
+      if inside then
+        return vim.api.nvim_replace_termcodes("<CR>\\item ", true, false, true)
+      else
+        return vim.api.nvim_replace_termcodes("<CR>", true, false, true)
+      end
+    end
+
+    -- Normal Enter: smart_item
+    vim.api.nvim_buf_set_keymap(0, "i", "<CR>", "v:lua.smart_item()", { expr = true, noremap = true })
+
+    -- Shift+Enter: just a normal Enter (bypass smart_item)
+    vim.api.nvim_buf_set_keymap(0, "i", "<S-CR>", "<CR>", { noremap = true, silent = true })
     -- Filetype-specific settings
     vim.api.nvim_create_autocmd("FileType", {
       pattern = "tex",
