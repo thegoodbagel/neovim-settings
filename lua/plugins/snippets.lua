@@ -49,15 +49,6 @@ return {
             return
           end
 
-          -- Priority 3: LaTeX list exit behavior (only for tex files)
-          if vim.bo.filetype == "tex" and _G.smart_tab then
-            local result = _G.smart_tab()
-            if result then
-              vim.api.nvim_feedkeys(result, "n", false)
-              return
-            end
-          end
-
           -- Priority 4: Default tab
           vim.api.nvim_feedkeys("\t", "n", false)
         end,
