@@ -53,7 +53,7 @@ return {
 
           -- Jump over closing brackets
           local next_char = line:sub(col + 1, col + 1)
-          if next_char:match("[)}%]>\"']") then
+          if next_char:match("[)}%]>\"']") or next_char == "$" then
             vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Right>", true, false, true), "n", false)
             return
           end
