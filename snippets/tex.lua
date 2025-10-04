@@ -31,6 +31,10 @@ return {
   s("sec", { t("\\section{"), i(0), t("}") }),
   s("ssec", { t("\\subsection{"), i(0), t("}") }),
   s("sssec", { t("\\subsubsection{"), i(0), t("}") }),
+  -- bold text
+  s("bf", { t("\\textbf{"), i(0), t("}") }),
+  s("em", { t("\\emph{"), i(0), t("}") }),
+  s("ul", { t("\\underline{"), i(0), t("}") }),
   -- Theorems / proofs
   s("thm", { t({ "\\begin{theorem}", "\t" }), i(0), t({ "", "\\end{theorem}" }) }),
   s("pf", { t({ "\\begin{proof}", "\t" }), i(0), t({ "", "\\end{proof}" }) }),
