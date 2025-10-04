@@ -12,45 +12,34 @@ return {
 
     -- Function to check if we're inside itemize/enumerate
     function _G.smart_item()
-      local cur_line = vim.fn.getline(".")
-      -- Only trigger if line starts with \item (optional spaces allowed)
+      local cur_line = vim.fn.getline(".") -- Only trigger if line starts with \item (optional spaces allowed)
       if not cur_line:match("^%s*\\item") then
         return vim.api.nvim_replace_termcodes("<CR>", true, false, true)
       end
+      local line_num = vim.fn.line(".")
+      local lines = vim.fn.getbufline("%", 1, line_num)
+      local inside_list = false
 
-      local cur = vim.fn.line(".")
-      local lines = vim.fn.getbufline("%", 1, cur)
-      local inside = false
-
-      -- Scan backwards to find the nearest \begin{itemize} or \begin{enumerate}
-      local begin_line = nil
-      for i = cur, 1, -1 do
+      local depth = 0
+      for i = line_num, 1, -1 do
         local l = lines[i]
-        if l:match("\\begin{itemize}") or l:match("\\begin{enumerate}") then
-          begin_line = i
-          break
-        end
-      end
-
-      if begin_line then
-        -- Check if there is a matching \end before current line
-        inside = true
-        for i = begin_line + 1, cur do
-          local l = lines[i]
-          if l:match("\\end{itemize}") or l:match("\\end{enumerate}") then
-            inside = false
+        if l:match("\\end{itemize}") or l:match("\\end{enumerate}") then
+          depth = depth + 1
+        elseif l:match("\\begin{itemize}") or l:match("\\begin{enumerate}") then
+          depth = depth - 1
+          if depth < 0 then
+            inside_list = true
             break
           end
         end
       end
 
-      if inside then
+      if inside_list then
         return vim.api.nvim_replace_termcodes("<CR>\\item ", true, false, true)
       else
         return vim.api.nvim_replace_termcodes("<CR>", true, false, true)
       end
     end
-
     -- Normal Enter: smart_item
     vim.api.nvim_buf_set_keymap(0, "i", "<CR>", "v:lua.smart_item()", { expr = true, noremap = true })
 
