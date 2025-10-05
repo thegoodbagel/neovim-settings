@@ -26,7 +26,7 @@ end
 
 return {
   -- Lists
-  s("itm", { t({ "\\begin{itemize}", "\t\\item " }), i(0), t({ "", "\\end{itemize}" }), i(1) }),
+  s("itm", { t({ "\\begin{itemize}", "\t\\item " }), i(0), t({ "", "\\end{itemize}" }) }),
   s("enu", { t({ "\\begin{enumerate}", "\t\\item " }), i(0), t({ "", "\\end{enumerate}" }) }),
   s("desc", { t({ "\\begin{description}", "\t\\item " }), i(0), t({ "", "\\end{description}" }) }),
   s("it", { t("\\item ") }),
@@ -96,39 +96,6 @@ return {
     rep(1),
     t("}"),
   }),
-
-  -- Subscripts (single digit) - using Lua patterns
-  s(
-    {
-      trig = "([A-Za-z])(%d)",
-      regTrig = true,
-      wordTrig = false,
-      trigEngine = "pattern", -- Use Lua pattern engine
-      snippetType = "autosnippet",
-    },
-    f(function(_, snip)
-      return snip.captures[1] .. "_{" .. snip.captures[2] .. "}"
-    end)
-  ),
-
-  -- Subscripts (two digits)
-  s(
-    {
-      trig = "([A-Za-z])_(%d%d)",
-      regTrig = true,
-      wordTrig = false,
-      trigEngine = "pattern",
-      snippetType = "autosnippet",
-    },
-    f(function(_, snip)
-      return snip.captures[1] .. "_{" .. snip.captures[2] .. "}"
-    end)
-  ),
-  -- Superscripts
-  s({ trig = "sr", snippetType = "autosnippet" }, t("^2")),
-  s({ trig = "cb", snippetType = "autosnippet" }, t("^3")),
-  s({ trig = "compl", snippetType = "autosnippet" }, t("^{c}")),
-  s({ trig = "td", snippetType = "autosnippet" }, { t("^{"), i(1), t("}") }),
 
   -- Fractions
   s({ trig = "//", snippetType = "autosnippet" }, {
