@@ -10,12 +10,12 @@ return {
     vim.g.vimtex_view_skim_sync = 1
     vim.g.vimtex_view_skim_activate = 1
 
-    -- Only set up smart_item + keymaps if filename has "notes" in it
+    -- Only set up smart_item + keymaps if filename or parent folder has "note" in it
     vim.api.nvim_create_autocmd("BufEnter", {
       pattern = "*.tex",
       callback = function(args)
-        local fname = vim.fn.expand("%:t") -- just the file name
-        if fname:match("notes") then
+        local fullpath = vim.fn.expand("%:p") -- full absolute path
+        if fullpath:lower():match("note") then
           -- Define smart_item only once
           if not _G.smart_item then
             function _G.smart_item()
