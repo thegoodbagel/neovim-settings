@@ -14,9 +14,22 @@ return {
     local single_dollar = Rule("$", "$", { "tex", "latex", "markdown" }):with_pair(function(opts)
       local line = opts.line
       local col = opts.col
+
       local prev_char = line:sub(col - 1, col - 1)
-      -- don’t trigger if already typed a $
-      return prev_char ~= "$"
+      local next_char = line:sub(col, col)
+
+      -- don't trigger if:
+      -- 1. previous char is $
+      -- 2. next char exists AND is not whitespace
+      if prev_char == "$" then
+        return false
+      end
+
+      if next_char ~= "" and not next_char:match("%s") then
+        return false
+      end
+
+      return true
     end)
 
     -- Display math: $$...$$
